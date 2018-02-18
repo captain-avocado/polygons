@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/resouces">
+        <file>img/spichki.bmp</file>
+    </qresource>
+</RCC>
