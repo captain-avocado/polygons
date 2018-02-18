@@ -15,9 +15,11 @@ Model_main::Model_main(QWidget *parent) :
     ui->label_pic_src->setPixmap(QPixmap::fromImage(img));
 
 
-    grid = QImage(MAX_R, MAX_R, QImage::Format_Grayscale8);
+    grid = res = QImage(MAX_R, MAX_R, QImage::Format_Grayscale8);
     grid.fill(qRgb(255,255,255));
+    res.fill(qRgb(255, 255, 255));
     ui->label_pic_grid->setPixmap(QPixmap::fromImage(grid));
+    ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
 }
 
 Model_main::~Model_main()
@@ -27,7 +29,8 @@ Model_main::~Model_main()
 
 void Model_main::on_pushButton_load_clicked()
 {
-    QString imgFile = QFileDialog::getOpenFileName(this, tr("Открытие изображения"), QDir::homePath(), tr("Image Files (*.gif *.tiff *.png *.jpg *.jpeg *.bmp)"));
+//    QDir::homePath();
+    QString imgFile = QFileDialog::getOpenFileName(this, tr("Открытие изображения"), "/Users/artemkaloev/faxmepic", tr("Image Files (*.gif *.tiff *.png *.jpg *.jpeg *.bmp)"));
     if (imgFile.isNull()) return;
     img.load(imgFile);
 
@@ -43,17 +46,20 @@ void Model_main::process(int P)
     //очистить вектор полигонов
     polyVector.clear();
     //создать сетку
-    split(MAX_R, P);
+    split(0, 0, 256, P);
     //отобразить сетку
     ui->label_pic_grid->setPixmap(QPixmap::fromImage(grid));
     //отобразить количество полигонов
     ui->label_polyNum->setText(QString::number(polyVector.size()));
     //отобразить количество полигонов заданного размера
     on_spinBox_valueChanged(QString::number(ui->spinBox->value()));
+    //формируем результирующее изображение и отображаем его
+    formNewPic();
 }
 void Model_main::on_horizontalSlider_threshold_actionTriggered()
 {
     grid.fill(qRgb(255,255,255));
+    res.fill(qRgb(255, 255, 255));
     int P = ui->horizontalSlider_threshold->value();
     process(P);
     ui->spinBox_threshold->setValue(P);
@@ -62,11 +68,23 @@ void Model_main::on_horizontalSlider_threshold_actionTriggered()
 void Model_main::on_spinBox_threshold_valueChanged(const QString &arg1)
 {
     grid.fill(qRgb(255,255,255));
+    res.fill(qRgb(255, 255, 255));
     int P = arg1.toInt();
     process(P);
     ui->horizontalSlider_threshold->setValue(P);
 }
 
+void Model_main::on_spinBox_valueChanged(const QString &arg1)
+{
+    int polySize = arg1.toInt();
+    int counter = 0;
+    for (int i = 0; i < polyVector.size(); i++) {
+        if (polyVector[i].getR() == polySize) {
+            counter++;
+        }
+    }
+    ui->label_reqPolyNum->setText(QString::number(counter));
+}
 
 void Model_main::draw(int x0, int y0, int R)
 {
@@ -76,6 +94,7 @@ void Model_main::draw(int x0, int y0, int R)
 
 bool Model_main::reqSplit(int x0, int y0, int R, int P)
 {
+    if (R == 1) return false;
     int min = 255;
     int max = 0;
     for (int i = x0; i < x0 + R; i++) {
@@ -90,34 +109,48 @@ bool Model_main::reqSplit(int x0, int y0, int R, int P)
     }
     return false;
 }
-void Model_main::split(int R, int P)
+
+void Model_main::split(int x0, int y0, int R, int P)
 {
-    polygon polyFirst(0, 0, R);
-    polyVector.push_back(polyFirst);
-    for (int count = 1; count < 256; count *= 2) {
-        for (int x = 0; x < R; x += R/count) {
-            for (int y = 0; y < R; y += R/count) {
-                if (reqSplit(x, y, R/count, P)) {
-                    draw(x, y, R/count);
-                    polygon poly(x, y, R/(count *2));
-                    for (int k = 0; k < 4; k++) {
-                        polyVector.push_back(poly);
-                    }
+    polygon poly(x0, y0, R);
+    if (reqSplit(x0, y0, R, P)) {
+        poly.isEmpty = false;
+        draw(x0, y0, R);
+        for (int x = x0; x <= x0 + R/2; x += R/2) {
+            for (int y = y0; y <= y0 + R/2; y += R/2) {
+                split(x, y, R/2, P);
+            }
+        }
+    } else {
+        poly.setIntensity(getIntensityFromPic(x0, y0, R));
+    }
+    polyVector.push_back(poly);
+}
+
+int Model_main::getIntensityFromPic(int x0, int y0, int R) {
+    int intensity = 0;
+    for (int i = x0; i < x0 + R; i++) {
+        for (int j = y0; j < y0 + R; j++) {
+            intensity += qGray(img.pixel(i, j));
+        }
+    }
+    return intensity /= R * R;
+}
+
+void Model_main::formNewPic()
+{
+    for (int k = 0; k < polyVector.size(); k++) {
+        if (polyVector[k].isEmpty) {
+            int x0 = polyVector[k].getX0();
+            int y0 = polyVector[k].getY0();
+            int R = polyVector[k].getR();
+            int intensity = polyVector[k].getIntensity();
+            for (int i = x0; i < x0 + R; i++) {
+                for (int j = y0; j < y0 + R; j++) {
+                    res.setPixel(i, j, qRgb(intensity, intensity, intensity));
                 }
             }
         }
     }
-}
-
-
-void Model_main::on_spinBox_valueChanged(const QString &arg1)
-{
-    int polySize = arg1.toInt();
-    int counter = 0;
-    for (int i = 0; i < polyVector.size(); i++) {
-        if (polyVector[i].getR() == polySize) {
-            counter++;
-        }
-    }
-    ui->label_reqPolyNum->setText(QString::number(counter));
+    ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
 }

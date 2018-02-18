@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
-    <height>498</height>
+    <width>790</width>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Разбиение изображения</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_5">
+   <layout class="QVBoxLayout" name="verticalLayout_7">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
@@ -71,9 +71,57 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_process">
+           <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Сформировать сетку</string>
+             <string>Сформированная сетка</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="margin">
+             <number>5</number>
+            </property>
+            <property name="indent">
+             <number>-1</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QLabel" name="label_pic_res">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>250</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>250</width>
+              <height>250</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Сформированное изображение</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="margin">
+             <number>5</number>
+            </property>
+            <property name="indent">
+             <number>-1</number>
             </property>
            </widget>
           </item>
@@ -95,11 +143,17 @@
           <property name="maximum">
            <number>255</number>
           </property>
+          <property name="value">
+           <number>255</number>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QSlider" name="horizontalSlider_threshold">
           <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="value">
            <number>255</number>
           </property>
           <property name="orientation">
@@ -167,7 +221,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>532</width>
+     <width>790</width>
      <height>22</height>
     </rect>
    </property>
