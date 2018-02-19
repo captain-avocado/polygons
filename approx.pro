@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         model_main.cpp \
-    polygon.cpp
+    polygon.cpp \
+    xylabel.cpp
 
 HEADERS += \
         model_main.h \
-    polygon.h
+    polygon.h \
+    xylabel.h
 
 FORMS += \
         model_main.ui

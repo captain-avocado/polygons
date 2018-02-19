@@ -2,7 +2,7 @@
 #define MODEL_MAIN_H
 
 #include <vector>
-#include <polygon.h>
+
 #include <QMainWindow>
 #include <QImage>
 #include <QPixmap>
@@ -10,6 +10,10 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QPushButton>
+#include <QMouseEvent>
+
+#include "polygon.h"
+#include "xylabel.h"
 
 namespace Ui {
 class Model_main;
@@ -33,6 +37,8 @@ private slots:
 
     void on_spinBox_valueChanged(const QString &arg1);
 
+    void on_xy_mousePress(xyLabel *clicked, QMouseEvent * event);
+
 private:
     Ui::Model_main *ui;
 
@@ -42,12 +48,14 @@ private:
     QImage img;
     QImage grid;
     QImage res;
+    QImage polyImg;
     void split(int x0, int y0, int R, int P);
     void draw(int x0, int y0, int R);
     bool reqSplit(int x0, int y0, int R, int P);
     void process(int P);
     int getIntensityFromPic(int x0, int y0, int R);
     void formNewPic();
+    void setPolyOnPic(polygon poly, QImage img);
 protected:
 
 public slots:

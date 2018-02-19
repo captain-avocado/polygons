@@ -20,6 +20,11 @@ Model_main::Model_main(QWidget *parent) :
     res.fill(qRgb(255, 255, 255));
     ui->label_pic_grid->setPixmap(QPixmap::fromImage(grid));
     ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
+
+
+    connect(ui->label_pic_src, SIGNAL(xyLabel_clicked(xyLabel*, QMouseEvent*)),
+                this, SLOT(on_xy_mousePress(xyLabel*,QMouseEvent*)));
+
 }
 
 Model_main::~Model_main()
@@ -141,16 +146,46 @@ void Model_main::formNewPic()
 {
     for (int k = 0; k < polyVector.size(); k++) {
         if (polyVector[k].isEmpty) {
+            setPolyOnPic(polyVector[k], res);
+//            int x0 = polyVector[k].getX0();
+//            int y0 = polyVector[k].getY0();
+//            int R = polyVector[k].getR();
+//            int intensity = polyVector[k].getIntensity();
+
+//            for (int i = x0; i < x0 + R; i++) {
+//                for (int j = y0; j < y0 + R; j++) {
+//                    res.setPixel(i, j, qRgb(intensity, intensity, intensity));
+//                }
+//            }
+        }
+    }
+    ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
+}
+
+void Model_main::setPolyOnPic(polygon poly, QImage imgSet) {
+    for (int i = poly.getX0(); i < poly.getX0() + poly.getR(); i++) {
+        for (int j = poly.getY0(); j < poly.getY0() + poly.getR(); j++) {
+            imgSet.setPixel(i, j, qRgb(poly.getIntensity(), poly.getIntensity(), poly.getIntensity()));
+        }
+    }
+}
+
+void Model_main::on_xy_mousePress(xyLabel *clicked, QMouseEvent *event)
+{
+    qDebug() << event->x() << ' ' << event->y();
+    for (int k = 0; k < polyVector.size(); k++) {
+        if (polyVector[k].isEmpty) {
             int x0 = polyVector[k].getX0();
             int y0 = polyVector[k].getY0();
             int R = polyVector[k].getR();
-            int intensity = polyVector[k].getIntensity();
             for (int i = x0; i < x0 + R; i++) {
                 for (int j = y0; j < y0 + R; j++) {
-                    res.setPixel(i, j, qRgb(intensity, intensity, intensity));
+                    if (i == x0 && j == y0) {
+                        setPolyOnPic(polyVector[k], polyImg);
+                    }
                 }
             }
         }
     }
-    ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
+    ui->label_poly_res->setPixmap(QPixmap::fromImage(polyImg));
 }
