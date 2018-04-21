@@ -44,7 +44,7 @@ private:
     QImage res;
     void split(int x0, int y0, int R, int P);
     void draw(int x0, int y0, int R);
-    bool reqSplit(int x0, int y0, int R, int P);
+//    bool reqSplit(int x0, int y0, int R, int P);
     void process(int P);
     int getIntensityFromPic(int x0, int y0, int R);
     void formNewPic();
