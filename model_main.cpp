@@ -63,7 +63,7 @@ void Model_main::process(int P)
 }
 void Model_main::on_horizontalSlider_threshold_actionTriggered()
 {
-    grid.fill(qRgb(255,255,255));
+    grid.fill(qRgb(255, 255, 255));
     res.fill(qRgb(255, 255, 255));
     int P = ui->horizontalSlider_threshold->value();
     process(P);
@@ -97,28 +97,28 @@ void Model_main::draw(int x0, int y0, int R)
     for (int j = y0; j < y0 + R; j++) grid.setPixel(x0 + R/2 - 1, j, qRgb(0, 0, 0));
 }
 
-bool Model_main::reqSplit(int x0, int y0, int R, int P)
-{
-    if (R == 1) return false;
-    int min = 255;
-    int max = 0;
-    for (int i = x0; i < x0 + R; i++) {
-        for (int j = y0; j < y0 + R; j++) {
-            int intensity = qGray(img.pixel(i, j));
-            if (intensity < min) min = intensity;
-            if (intensity > max) max = intensity;
-            if (max - min >= P) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
+//bool Model_main::reqSplit(int x0, int y0, int R, int P)
+//{
+//    if (R == 1) return false;
+//    int min = 255;
+//    int max = 0;
+//    for (int i = x0; i < x0 + R; i++) {
+//        for (int j = y0; j < y0 + R; j++) {
+//            int intensity = qGray(img.pixel(i, j));
+//            if (intensity < min) min = intensity;
+//            if (intensity > max) max = intensity;
+//            if (max - min >= P) {
+//                return true;
+//            }
+//        }
+//    }
+//    return false;
+//}
 
 void Model_main::split(int x0, int y0, int R, int P)
 {
     polygon poly(x0, y0, R);
-    if (reqSplit(x0, y0, R, P)) {
+    if (poly.reqSplit(img, P)) {
         poly.isEmpty = false;
         draw(x0, y0, R);
         for (int x = x0; x <= x0 + R/2; x += R/2) {
@@ -144,6 +144,7 @@ int Model_main::getIntensityFromPic(int x0, int y0, int R) {
 
 void Model_main::formNewPic()
 {
+    qDebug() << polyVector[polyVector.size() - 1].getR() << polyVector[polyVector.size() - 2].getR() << polyVector[polyVector.size() - 3].getR() << polyVector[polyVector.size() - 4].getR();
     for (int k = 0; k < polyVector.size(); k++) {
         if (polyVector[k].isEmpty) {
             setPolyOnPic(polyVector[k], res);
