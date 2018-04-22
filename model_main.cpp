@@ -86,11 +86,11 @@ void Model_main::on_spinBox_valueChanged(const QString &arg1)
     ui->label_reqPolyNum->setText(QString::number(counter));
 }
 
-void Model_main::draw(int x0, int y0, int R)
-{
-    for (int i = x0; i < x0 + R; i++) grid.setPixel(i, y0 + R/2 - 1, qRgb(0, 0, 0));
-    for (int j = y0; j < y0 + R; j++) grid.setPixel(x0 + R/2 - 1, j, qRgb(0, 0, 0));
-}
+//void Model_main::draw(int x0, int y0, int R)
+//{
+//    for (int i = x0; i < x0 + R; i++) grid.setPixel(i, y0 + R/2 - 1, qRgb(0, 0, 0));
+//    for (int j = y0; j < y0 + R; j++) grid.setPixel(x0 + R/2 - 1, j, qRgb(0, 0, 0));
+//}
 
 //bool Model_main::reqSplit(int x0, int y0, int R, int P)
 //{
@@ -115,27 +115,27 @@ void Model_main::split(int x0, int y0, int R, int P)
     polygon poly(x0, y0, R);
     if (poly.reqSplit(img, P)) {
         poly.isEmpty = false;
-        draw(x0, y0, R);
+        poly.draw(grid);
         for (int x = x0; x <= x0 + R/2; x += R/2) {
             for (int y = y0; y <= y0 + R/2; y += R/2) {
                 split(x, y, R/2, P);
             }
         }
     } else {
-        poly.setIntensity(getIntensityFromPic(x0, y0, R));
+        poly.setIntensity(poly.getIntensityFromPic(img));
     }
     polyVector.push_back(poly);
 }
 
-int Model_main::getIntensityFromPic(int x0, int y0, int R) {
-    int intensity = 0;
-    for (int i = x0; i < x0 + R; i++) {
-        for (int j = y0; j < y0 + R; j++) {
-            intensity += qGray(img.pixel(i, j));
-        }
-    }
-    return intensity /= R * R;
-}
+//int Model_main::getIntensityFromPic(int x0, int y0, int R) {
+//    int intensity = 0;
+//    for (int i = x0; i < x0 + R; i++) {
+//        for (int j = y0; j < y0 + R; j++) {
+//            intensity += qGray(img.pixel(i, j));
+//        }
+//    }
+//    return intensity /= R * R;
+//}
 
 void Model_main::formNewPic()
 {

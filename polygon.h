@@ -20,7 +20,9 @@ public:
     int getY0() { return y0; }
     int getIntensity() { return intensity; }
     void setIntensity(int intns) { intensity = intns; }
-    bool reqSplit(QImage img, int P);
+    bool reqSplit(const QImage &img, int P);
+    void draw(QImage &grid);
+    int getIntensityFromPic(const QImage &img);
 };
 
 #endif // POLYGON_H
