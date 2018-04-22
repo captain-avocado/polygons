@@ -40,3 +40,69 @@ int polygon::getIntensityFromPic(const QImage &img) {
     }
     return intensity /= R * R;
 }
+
+void polygon::split(const QImage &img, QImage &grid, std::vector<polygon> &polyVector, int P)
+{
+    if (reqSplit(img, P)) {
+        isEmpty = false;
+        draw(grid);
+        int i = 0;
+        for (int x = x0; x <= x0 + R/2; x += R/2) {
+            for (int y = y0; y <= y0 + R/2; y += R/2) {
+                polygon polyChild(x, y, R/2);
+                switch(i) {
+                    case 0:
+                        LT = &polyChild;
+
+//                        не работает???
+//                        qDebug() << "LT&&" << LT->getX0();
+                        break;
+                    case 1:
+                        LD = &polyChild;
+                        break;
+                    case 2:
+                        RT = &polyChild;
+                        break;
+                    case 3:
+                        RD = &polyChild;
+                        break;
+                }
+                i++;
+//                qDebug() << "LT!!" << LT->getY0();
+                polyChild.split(img, grid, polyVector, P);
+            }
+        }
+    } else {
+        setIntensity(getIntensityFromPic(img));
+    }
+    polyVector.push_back(*this);
+}
+
+
+
+
+
+
+
+//void polygon::formNewPic(const std::vector<polygon> &polyVector, QImage &res)
+//{
+////    qDebug() << polyVector[polyVector.size() - 1].getR() << polyVector[polyVector.size() - 2].getR() << polyVector[polyVector.size() - 3].getR() << polyVector[polyVector.size() - 4].getR();
+//    for (int k = 0; k < polyVector.size(); k++) {
+//        if (polyVector[k].isEmpty) {
+//            int px0 = polyVector[k].getX0();
+//            int py0 = polyVector[k].getY0();
+//            int pR = polyVector[k].getR();
+//            int pintensity = polyVector[k].getIntensity();
+//            for (int i = px0; i < px0 + pR; i++) {
+//                for (int j = py0; j < py0 + pR; j++) {
+//                    res.setPixel(i, j, qRgb(pintensity, pintensity, pintensity));
+//                }
+//            }
+//        }
+//    }
+////    ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
+//}
+
+
+
+

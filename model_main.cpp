@@ -46,7 +46,12 @@ void Model_main::process(int P)
     //очистить вектор полигонов
     polyVector.clear();
     //создать сетку
-    split(0, 0, 256, P);
+    polygon poly(0, 0, 256);
+    polyVector.push_back(poly);
+    poly.split(img, grid, polyVector, P);
+
+//    не работает????
+//    qDebug() << (*poly.LD).getX0();
     //отобразить сетку
     ui->label_pic_grid->setPixmap(QPixmap::fromImage(grid));
     //отобразить количество полигонов
@@ -56,6 +61,7 @@ void Model_main::process(int P)
     //формируем результирующее изображение и отображаем его
     formNewPic();
 }
+
 void Model_main::on_horizontalSlider_threshold_actionTriggered()
 {
     grid.fill(qRgb(255, 255, 255));
@@ -86,60 +92,26 @@ void Model_main::on_spinBox_valueChanged(const QString &arg1)
     ui->label_reqPolyNum->setText(QString::number(counter));
 }
 
-//void Model_main::draw(int x0, int y0, int R)
+//void Model_main::split(int x0, int y0, int R, int P)
 //{
-//    for (int i = x0; i < x0 + R; i++) grid.setPixel(i, y0 + R/2 - 1, qRgb(0, 0, 0));
-//    for (int j = y0; j < y0 + R; j++) grid.setPixel(x0 + R/2 - 1, j, qRgb(0, 0, 0));
-//}
-
-//bool Model_main::reqSplit(int x0, int y0, int R, int P)
-//{
-//    if (R == 1) return false;
-//    int min = 255;
-//    int max = 0;
-//    for (int i = x0; i < x0 + R; i++) {
-//        for (int j = y0; j < y0 + R; j++) {
-//            int intensity = qGray(img.pixel(i, j));
-//            if (intensity < min) min = intensity;
-//            if (intensity > max) max = intensity;
-//            if (max - min >= P) {
-//                return true;
+//    polygon poly(x0, y0, R);
+//    if (poly.reqSplit(img, P)) {
+//        poly.isEmpty = false;
+//        poly.draw(grid);
+//        for (int x = x0; x <= x0 + R/2; x += R/2) {
+//            for (int y = y0; y <= y0 + R/2; y += R/2) {
+//                split(x, y, R/2, P);
 //            }
 //        }
+//    } else {
+//        poly.setIntensity(poly.getIntensityFromPic(img));
 //    }
-//    return false;
-//}
-
-void Model_main::split(int x0, int y0, int R, int P)
-{
-    polygon poly(x0, y0, R);
-    if (poly.reqSplit(img, P)) {
-        poly.isEmpty = false;
-        poly.draw(grid);
-        for (int x = x0; x <= x0 + R/2; x += R/2) {
-            for (int y = y0; y <= y0 + R/2; y += R/2) {
-                split(x, y, R/2, P);
-            }
-        }
-    } else {
-        poly.setIntensity(poly.getIntensityFromPic(img));
-    }
-    polyVector.push_back(poly);
-}
-
-//int Model_main::getIntensityFromPic(int x0, int y0, int R) {
-//    int intensity = 0;
-//    for (int i = x0; i < x0 + R; i++) {
-//        for (int j = y0; j < y0 + R; j++) {
-//            intensity += qGray(img.pixel(i, j));
-//        }
-//    }
-//    return intensity /= R * R;
+//    polyVector.push_back(poly);
 //}
 
 void Model_main::formNewPic()
 {
-    qDebug() << polyVector[polyVector.size() - 1].getR() << polyVector[polyVector.size() - 2].getR() << polyVector[polyVector.size() - 3].getR() << polyVector[polyVector.size() - 4].getR();
+//    qDebug() << polyVector[polyVector.size() - 1].getR() << polyVector[polyVector.size() - 2].getR() << polyVector[polyVector.size() - 3].getR() << polyVector[polyVector.size() - 4].getR();
     for (int k = 0; k < polyVector.size(); k++) {
         if (polyVector[k].isEmpty) {
             int x0 = polyVector[k].getX0();

@@ -2,6 +2,7 @@
 #define POLYGON_H
 
 #include <QImage>
+#include <QDebug>
 //#include <QPixmap>
 
 class polygon
@@ -12,7 +13,9 @@ private:
     int x0, y0, R, intensity;
 public:
     bool isEmpty = true;
-    polygon *children = nullptr;
+//    polygon *children = nullptr;
+    polygon *LT, *RT, *RD, *LD;
+
 
     polygon(int x0, int y0, int R);
     int getR() { return R; }
@@ -23,6 +26,8 @@ public:
     bool reqSplit(const QImage &img, int P);
     void draw(QImage &grid);
     int getIntensityFromPic(const QImage &img);
+    void split(const QImage &img, QImage &grid, std::vector<polygon> &polyVector, int P);
+//    void formNewPic(const std::vector<polygon> &polyVector, QImage &res);
 };
 
 #endif // POLYGON_H
