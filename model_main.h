@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QPushButton>
 
+
 namespace Ui {
 class Model_main;
 }
@@ -48,6 +49,8 @@ private:
     void process(int P);
     int getIntensityFromPic(int x0, int y0, int R);
     void formNewPic();
+
+    void bfs(polygon* root);
 protected:
 
 public slots:

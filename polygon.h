@@ -3,6 +3,8 @@
 
 #include <QImage>
 #include <QDebug>
+#include <QQueue>
+#include <QFile>
 //#include <QPixmap>
 
 class polygon
@@ -14,7 +16,7 @@ private:
 public:
     bool isEmpty = true;
 //    polygon *children = nullptr;
-    polygon *LT, *RT, *RD, *LD;
+    polygon *LT = nullptr, *RT= nullptr, *RD= nullptr, *LD= nullptr;
 
 
     polygon(int x0, int y0, int R);
@@ -28,6 +30,12 @@ public:
     int getIntensityFromPic(const QImage &img);
     void split(const QImage &img, QImage &grid, std::vector<polygon> &polyVector, int P);
 //    void formNewPic(const std::vector<polygon> &polyVector, QImage &res);
+
+    //алгоритм обхода дерева полигонов в ширину
+    void bfs(QString &fileData);
+
+    //алгоритм поиска листьев в дереве полигонов
+    void postOrder(QString &fileData);
 };
 
 #endif // POLYGON_H

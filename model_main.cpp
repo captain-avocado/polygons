@@ -45,13 +45,32 @@ void Model_main::process(int P)
 {
     //очистить вектор полигонов
     polyVector.clear();
-    //создать сетку
-    polygon poly(0, 0, 256);
-    polyVector.push_back(poly);
-    poly.split(img, grid, polyVector, P);
 
-//    не работает????
-//    qDebug() << (*poly.LD).getX0();
+    //создать дерево полигонов и сетку
+    polygon *poly = new polygon(0, 0, 256);
+    polyVector.push_back(*poly);
+    poly->split(img, grid, polyVector, P);
+
+//    qDebug() << QDir::currentPath() << QDir::homePath();
+
+    //записать данные в файл
+    QFile fileComplete("/Users/artemkaloev/fileComplete");
+    QFile fileCompressed("/Users/artemkaloev/fileCompressed");
+
+//    if (fileComplete.open(QIODevice::WriteOnly)) {
+//        QString fileData;
+//        poly->bfs(fileData);
+//        fileComplete.write(fileData.toStdString().c_str());
+//        fileComplete.close();
+//    }
+
+//    if (fileCompressed.open(QIODevice::WriteOnly)) {
+//        QString fileData;
+//        poly->postOrder(fileData);
+//        fileCompressed.write(fileData.toStdString().c_str());
+//        fileCompressed.close();
+//    }
+
     //отобразить сетку
     ui->label_pic_grid->setPixmap(QPixmap::fromImage(grid));
     //отобразить количество полигонов
@@ -91,23 +110,6 @@ void Model_main::on_spinBox_valueChanged(const QString &arg1)
     }
     ui->label_reqPolyNum->setText(QString::number(counter));
 }
-
-//void Model_main::split(int x0, int y0, int R, int P)
-//{
-//    polygon poly(x0, y0, R);
-//    if (poly.reqSplit(img, P)) {
-//        poly.isEmpty = false;
-//        poly.draw(grid);
-//        for (int x = x0; x <= x0 + R/2; x += R/2) {
-//            for (int y = y0; y <= y0 + R/2; y += R/2) {
-//                split(x, y, R/2, P);
-//            }
-//        }
-//    } else {
-//        poly.setIntensity(poly.getIntensityFromPic(img));
-//    }
-//    polyVector.push_back(poly);
-//}
 
 void Model_main::formNewPic()
 {
