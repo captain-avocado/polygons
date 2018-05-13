@@ -6,8 +6,7 @@ Model_main::Model_main(QWidget *parent) :
     ui(new Ui::Model_main)
 {
     ui->setupUi(this);
-
-    img.load(":/resouces/img/spichki.bmp");
+    img.load(":/resources/img/spichki.bmp");
     img = img.scaled(MAX_R, MAX_R);
     if (img.format() != QImage::Format_Grayscale8) {
         img = img.convertToFormat(QImage::Format_Grayscale8);
@@ -46,30 +45,38 @@ void Model_main::process(int P)
     //очистить вектор полигонов
     polyVector.clear();
 
+    polyTree = nullptr;
+
     //создать дерево полигонов и сетку
-    polygon *poly = new polygon(0, 0, 256);
-    polyVector.push_back(*poly);
-    poly->split(img, grid, polyVector, P);
+    polyTree = new polygon(0, 0, 256);
+    polyVector.push_back(*polyTree);
+    polyTree->split(img, grid, polyVector, P);
 
 //    qDebug() << QDir::currentPath() << QDir::homePath();
+//    qDebug() << qApp->applicationDirPath();
+
+//    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+//                                "complete.pif");
+//    qDebug() << fileName;
 
     //записать данные в файл
-    QFile fileComplete("/Users/artemkaloev/fileComplete");
-    QFile fileCompressed("/Users/artemkaloev/fileCompressed");
+    //pif - polygon image format
+//    QFile fileComplete(":/resources/data/complete.pif");
+//    QFile fileCompressed(":/resources/data/compressed.pif");
 
 //    if (fileComplete.open(QIODevice::WriteOnly)) {
 //        QString fileData;
 //        poly->bfs(fileData);
 //        fileComplete.write(fileData.toStdString().c_str());
 //        fileComplete.close();
-//    }
+//    } else qDebug() << "NO";
 
 //    if (fileCompressed.open(QIODevice::WriteOnly)) {
 //        QString fileData;
 //        poly->postOrder(fileData);
 //        fileCompressed.write(fileData.toStdString().c_str());
 //        fileCompressed.close();
-//    }
+//    } else qDebug() << "NO2";
 
     //отобразить сетку
     ui->label_pic_grid->setPixmap(QPixmap::fromImage(grid));
@@ -128,4 +135,38 @@ void Model_main::formNewPic()
         }
     }
     ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
+}
+
+void Model_main::on_pushButton_saveComplete_clicked()
+{
+    if (polyTree != nullptr) {
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+        if (!fileName.isEmpty()) {
+            QFile fileComplete(fileName);
+            if (fileComplete.open(QIODevice::WriteOnly)) {
+                QString fileData;
+                polyTree->bfs(fileData);
+                fileComplete.write(fileData.toStdString().c_str());
+                fileComplete.close();
+            }
+        }
+    }
+}
+
+void Model_main::on_pushButton_saveCompressed_clicked()
+{
+    if (polyTree != nullptr) {
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+        if (!fileName.isEmpty()) {
+            QFile fileCompressed(fileName);
+            if (fileCompressed.open(QIODevice::WriteOnly)) {
+                QString fileData;
+                polyTree->postOrder(fileData);
+                fileCompressed.write(fileData.toStdString().c_str());
+                fileCompressed.close();
+            }
+        }
+    }
 }

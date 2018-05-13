@@ -14,7 +14,7 @@
    <string>Разбиение изображения</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_7">
+   <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
@@ -213,6 +213,20 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_saveComplete">
+      <property name="text">
+       <string>Сохранить изображение полностью</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_saveCompressed">
+      <property name="text">
+       <string>Сохранить сжатое изображение</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

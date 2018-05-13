@@ -34,9 +34,14 @@ private slots:
 
     void on_spinBox_valueChanged(const QString &arg1);
 
+    void on_pushButton_saveComplete_clicked();
+
+    void on_pushButton_saveCompressed_clicked();
+
 private:
     Ui::Model_main *ui;
 
+    polygon *polyTree = nullptr;
     const int MAX_R = 256;
 
     std::vector<polygon> polyVector;
