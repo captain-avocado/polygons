@@ -42,50 +42,28 @@ void Model_main::on_pushButton_load_clicked()
 
 void Model_main::process(int P)
 {
-    //очистить вектор полигонов
     polyVector.clear();
 
+    polyCounter = 0;
     polyTree = nullptr;
 
     //создать дерево полигонов и сетку
     polyTree = new polygon(0, 0, 256);
-    polyVector.push_back(*polyTree);
-    polyTree->split(img, grid, polyVector, P);
-
-//    qDebug() << QDir::currentPath() << QDir::homePath();
-//    qDebug() << qApp->applicationDirPath();
-
-//    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-//                                "complete.pif");
-//    qDebug() << fileName;
-
-    //записать данные в файл
-    //pif - polygon image format
-//    QFile fileComplete(":/resources/data/complete.pif");
-//    QFile fileCompressed(":/resources/data/compressed.pif");
-
-//    if (fileComplete.open(QIODevice::WriteOnly)) {
-//        QString fileData;
-//        poly->bfs(fileData);
-//        fileComplete.write(fileData.toStdString().c_str());
-//        fileComplete.close();
-//    } else qDebug() << "NO";
-
-//    if (fileCompressed.open(QIODevice::WriteOnly)) {
-//        QString fileData;
-//        poly->postOrder(fileData);
-//        fileCompressed.write(fileData.toStdString().c_str());
-//        fileCompressed.close();
-//    } else qDebug() << "NO2";
+    polyCounter++;
+    polyTree->split(img, grid, P, polyCounter);
+    polyTree->bfsTreeToArray(polyVector);
 
     //отобразить сетку
     ui->label_pic_grid->setPixmap(QPixmap::fromImage(grid));
     //отобразить количество полигонов
-    ui->label_polyNum->setText(QString::number(polyVector.size()));
+    ui->label_polyNum->setText(QString::number(polyCounter));
     //отобразить количество полигонов заданного размера
     on_spinBox_valueChanged(QString::number(ui->spinBox->value()));
     //формируем результирующее изображение и отображаем его
-    formNewPic();
+    polyTree->postOrderFormPic(res);
+    ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
+
+    ui->label_deviationNum->setText(QString::number(calcStandartDeviation()));
 }
 
 void Model_main::on_horizontalSlider_threshold_actionTriggered()
@@ -109,49 +87,8 @@ void Model_main::on_spinBox_threshold_valueChanged(const QString &arg1)
 void Model_main::on_spinBox_valueChanged(const QString &arg1)
 {
     int polySize = arg1.toInt();
-    int counter = 0;
-    for (int i = 0; i < polyVector.size(); i++) {
-        if (polyVector[i].getR() == polySize) {
-            counter++;
-        }
-    }
+    int counter = polyTree->bfsPolyCount(polySize);
     ui->label_reqPolyNum->setText(QString::number(counter));
-}
-
-void Model_main::formNewPic()
-{
-//    qDebug() << polyVector[polyVector.size() - 1].getR() << polyVector[polyVector.size() - 2].getR() << polyVector[polyVector.size() - 3].getR() << polyVector[polyVector.size() - 4].getR();
-    for (int k = 0; k < polyVector.size(); k++) {
-        if (polyVector[k].isEmpty) {
-            int x0 = polyVector[k].getX0();
-            int y0 = polyVector[k].getY0();
-            int R = polyVector[k].getR();
-            int intensity = polyVector[k].getIntensity();
-            for (int i = x0; i < x0 + R; i++) {
-                for (int j = y0; j < y0 + R; j++) {
-                    res.setPixel(i, j, qRgb(intensity, intensity, intensity));
-                }
-            }
-        }
-    }
-    ui->label_pic_res->setPixmap(QPixmap::fromImage(res));
-}
-
-void Model_main::on_pushButton_saveComplete_clicked()
-{
-    if (polyTree != nullptr) {
-        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
-
-        if (!fileName.isEmpty()) {
-            QFile fileComplete(fileName);
-            if (fileComplete.open(QIODevice::WriteOnly)) {
-                QString fileData;
-                polyTree->bfs(fileData);
-                fileComplete.write(fileData.toStdString().c_str());
-                fileComplete.close();
-            }
-        }
-    }
 }
 
 void Model_main::on_pushButton_saveCompressed_clicked()
@@ -162,11 +99,58 @@ void Model_main::on_pushButton_saveCompressed_clicked()
         if (!fileName.isEmpty()) {
             QFile fileCompressed(fileName);
             if (fileCompressed.open(QIODevice::WriteOnly)) {
-                QString fileData;
-                polyTree->postOrder(fileData);
-                fileCompressed.write(fileData.toStdString().c_str());
+                QByteArray fileData;
+                polyTree->bfsCompressed(fileData);
+                fileCompressed.write(fileData);
+
                 fileCompressed.close();
             }
+
         }
     }
+}
+
+double Model_main::calcStandartDeviation() {
+    int sum = 0;
+    for (int i = 0; i < MAX_R; i++) {
+        for (int j = 0; j < MAX_R; j++) {
+            sum += pow((qGray(img.pixel(i, j)) - qGray(res.pixel(i, j))), 2);
+        }
+    }
+    return sqrt(sum/(MAX_R * MAX_R));
+}
+
+void Model_main::on_pushButton_loadPIF_clicked()
+{
+    QString imgFile = QFileDialog::getOpenFileName(this, tr("Открытие изображения"), QDir::homePath());
+    QFile fileCompressed(imgFile);
+
+    if (fileCompressed.open(QIODevice::ReadOnly)) {
+
+        QByteArray data = fileCompressed.readAll();
+
+        int x = 1;
+        int x0, y0, R, intensity;
+
+        for (int i = 0; i < data.length(); i++) {
+                if (x == 5) x = 1;
+                if (x == 1) x0 = (int)(unsigned char)data[i];
+                if (x == 2) y0 = (int)(unsigned char)data[i];
+                if (x == 3) R = (int)(unsigned char)data[i] + 1;
+                if (x == 4) intensity = (int)(unsigned char)data[i];
+
+                x++;
+                if (x == 5) {
+                    for (int k = x0; k < x0 + R; k++) {
+                        for (int j = y0; j < y0 + R; j++) {
+                            img.setPixel(k, j, qRgb(intensity, intensity, intensity));
+                        }
+                    }
+                }
+            }
+
+        fileCompressed.close();
+        ui->label_pic_src->setPixmap(QPixmap::fromImage(img));
+    }
+
 }

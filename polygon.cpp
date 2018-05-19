@@ -41,9 +41,11 @@ int polygon::getIntensityFromPic(const QImage &img) {
     return intensity /= R * R;
 }
 
-void polygon::split(const QImage &img, QImage &grid, std::vector<polygon> &polyVector, int P)
+void polygon::split(const QImage &img, QImage &grid, int P, int &polyCounter)
 {
     if (reqSplit(img, P)) {
+
+        polyCounter += 4;
         isEmpty = false;
         draw(grid);
 
@@ -52,39 +54,30 @@ void polygon::split(const QImage &img, QImage &grid, std::vector<polygon> &polyV
         RT = new polygon(x0 + R/2, y0, R/2);
         RD = new polygon(x0 + R/2, y0 + R/2, R/2);
 
-        LT->split(img, grid, polyVector, P);
-        LD->split(img, grid, polyVector, P);
-        RT->split(img, grid, polyVector, P);
-        RD->split(img, grid, polyVector, P);
+        LT->split(img, grid, P, polyCounter);
+        LD->split(img, grid, P, polyCounter);
+        RT->split(img, grid, P, polyCounter);
+        RD->split(img, grid, P, polyCounter);
 
     } else {
         setIntensity(getIntensityFromPic(img));
     }
-    polyVector.push_back(*this);
 }
 
 void polygon::bfs(QString &fileData) {
 
     //очередь обрабатываемых элементов дерева
     QQueue<polygon*> queue;
-
-//    QFile file("/Users/artemkaloev/file");
-//    file.open(QIODevice::WriteOnly);
-
     queue.enqueue(this);
 
     while (!queue.isEmpty())
     {
         polygon* tmpNode = queue.dequeue();
 
-        fileData += QString::number(tmpNode->isEmpty);
-        fileData += ",";
-        fileData += QString::number(tmpNode->x0);
-        fileData += ",";
-        fileData += QString::number(tmpNode->y0);
-        fileData += ",";
-        fileData += QString::number(tmpNode->R);
-        fileData += "|";
+        fileData += QString::number(tmpNode->isEmpty) + ","
+                + QString::number(tmpNode->x0) + ","
+                + QString::number(tmpNode->y0) + ","
+                + QString::number(tmpNode->R) + "|";
 
         if (tmpNode->LT) {
             queue.enqueue(tmpNode->LT);
@@ -102,19 +95,133 @@ void polygon::bfs(QString &fileData) {
 
 }
 
-void polygon::postOrder(QString &fileData) {
+void polygon::bfsTreeToArray(QVector<polygon*> &polyVector) {
+
+    //очередь обрабатываемых элементов дерева
+    QQueue<polygon*> queue;
+    queue.enqueue(this);
+
+    while (!queue.isEmpty())
+    {
+        polygon* tmpNode = queue.dequeue();
+        polyVector.push_back(tmpNode);
+
+        if (tmpNode->LT) {
+            queue.enqueue(tmpNode->LT);
+        }
+        if (tmpNode->LD) {
+            queue.enqueue(tmpNode->LD);
+        }
+        if (tmpNode->RT) {
+            queue.enqueue(tmpNode->RT);
+        }
+        if (tmpNode->RD) {
+            queue.enqueue(tmpNode->RD);
+        }
+    }
+}
+
+int polygon::bfsPolyCount(int size) {
+
+    //очередь обрабатываемых элементов дерева
+    QQueue<polygon*> queue;
+    queue.enqueue(this);
+    int counter = 0;
+
+    while (!queue.isEmpty())
+    {
+        polygon* tmpNode = queue.dequeue();
+
+        if (tmpNode->getR() < size) return counter;
+
+        if (tmpNode->getR() == size) {
+            counter++;
+        }
+
+        if (tmpNode->LT) {
+            queue.enqueue(tmpNode->LT);
+        }
+        if (tmpNode->LD) {
+            queue.enqueue(tmpNode->LD);
+        }
+        if (tmpNode->RT) {
+            queue.enqueue(tmpNode->RT);
+        }
+        if (tmpNode->RD) {
+            queue.enqueue(tmpNode->RD);
+        }
+    }
+
+    return counter;
+}
+
+void polygon::bfsCompressed(QByteArray &fileData) {
+
+    QQueue<polygon*> queue;
+    queue.enqueue(this);
+
+    while (!queue.isEmpty())
+    {
+        polygon* tmpNode = queue.dequeue();
+
+        if (tmpNode->isEmpty) {
+            fileData += char(tmpNode->x0);
+            fileData += char(tmpNode->y0);
+            fileData += char((tmpNode->R)-1);
+            fileData += char(tmpNode->intensity);
+
+            qDebug() << (char)(tmpNode->x0) <<
+                        (char)(tmpNode->y0) <<
+                        (char)((tmpNode->R) - 1) <<
+                        (char)(tmpNode->intensity);
+        }
+
+        if (tmpNode->LT) {
+            queue.enqueue(tmpNode->LT);
+        }
+        if (tmpNode->LD) {
+            queue.enqueue(tmpNode->LD);
+        }
+        if (tmpNode->RT) {
+            queue.enqueue(tmpNode->RT);
+        }
+        if (tmpNode->RD) {
+            queue.enqueue(tmpNode->RD);
+        }
+    }
+
+}
+
+void polygon::postOrder(QByteArray &fileData) {
     if (isEmpty) {
-        fileData += QString::number(x0);
-        fileData += ",";
-        fileData += QString::number(y0);
-        fileData += ",";
-        fileData += QString::number(R);
-        fileData += "|";
+        fileData += QByteArray::number(x0) + " "
+                + QByteArray::number(y0) + " "
+                + QByteArray::number(R) + " ";
+
+//        QByteArray newx = x0;
+//        qDebug() << x0 << newx;
+
     } else {
         LT->postOrder(fileData);
         LD->postOrder(fileData);
         RT->postOrder(fileData);
         RD->postOrder(fileData);
+    }
+    return;
+}
+
+void polygon::postOrderFormPic(QImage &res) {
+    if (isEmpty) {
+        for (int i = x0; i < x0 + R; i++) {
+            for (int j = y0; j < y0 + R; j++) {
+                res.setPixel(i, j, qRgb(intensity, intensity, intensity));
+            }
+        }
+    } else {
+        LT->postOrderFormPic(res);
+        LD->postOrderFormPic(res);
+        RT->postOrderFormPic(res);
+        RD->postOrderFormPic(res);
     }
     return;
 }

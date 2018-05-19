@@ -10,6 +10,8 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QPushButton>
+#include <QByteArray>
+#include <math.h>
 
 
 namespace Ui {
@@ -34,28 +36,26 @@ private slots:
 
     void on_spinBox_valueChanged(const QString &arg1);
 
-    void on_pushButton_saveComplete_clicked();
-
     void on_pushButton_saveCompressed_clicked();
+
+    void on_pushButton_loadPIF_clicked();
 
 private:
     Ui::Model_main *ui;
 
     polygon *polyTree = nullptr;
+    int polyCounter = 0;
+    QVector<polygon*> polyVector;
+
+
     const int MAX_R = 256;
 
-    std::vector<polygon> polyVector;
     QImage img;
     QImage grid;
     QImage res;
-    void split(int x0, int y0, int R, int P);
-    void draw(int x0, int y0, int R);
-//    bool reqSplit(int x0, int y0, int R, int P);
     void process(int P);
-    int getIntensityFromPic(int x0, int y0, int R);
-    void formNewPic();
+    double calcStandartDeviation();
 
-    void bfs(polygon* root);
 protected:
 
 public slots:

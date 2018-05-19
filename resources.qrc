@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/resources">
         <file>img/spichki.bmp</file>
-        <file>data/complete.pif</file>
-        <file>data/compressed.pif</file>
     </qresource>
 </RCC>

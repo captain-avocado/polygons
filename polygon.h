@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QQueue>
 #include <QFile>
+#include <QVector>
 //#include <QPixmap>
 
 class polygon
@@ -28,14 +29,20 @@ public:
     bool reqSplit(const QImage &img, int P);
     void draw(QImage &grid);
     int getIntensityFromPic(const QImage &img);
-    void split(const QImage &img, QImage &grid, std::vector<polygon> &polyVector, int P);
-//    void formNewPic(const std::vector<polygon> &polyVector, QImage &res);
+    void split(const QImage &img, QImage &grid, int P, int &polyCounter);
 
     //алгоритм обхода дерева полигонов в ширину
     void bfs(QString &fileData);
+    int bfsPolyCount(int size);
+    void bfsTreeToArray(QVector<polygon*> &polyVector);
+    void bfsCompressed(QByteArray &fileData);
 
     //алгоритм поиска листьев в дереве полигонов
-    void postOrder(QString &fileData);
+    void postOrder(QByteArray &fileData);
+    void postOrderFormPic(QImage &res);
+
+    QByteArray convertIntToByteArray(int n);
+
 };
 
 #endif // POLYGON_H
