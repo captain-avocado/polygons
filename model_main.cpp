@@ -94,7 +94,7 @@ void Model_main::on_spinBox_valueChanged(const QString &arg1)
 void Model_main::on_pushButton_saveCompressed_clicked()
 {
     if (polyTree != nullptr) {
-        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QDir::homePath());
 
         if (!fileName.isEmpty()) {
             QFile fileCompressed(fileName);
