@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QPushButton>
 #include <QByteArray>
+#include <QMessageBox>
 #include <math.h>
 
 
@@ -39,6 +40,8 @@ private slots:
     void on_pushButton_saveCompressed_clicked();
 
     void on_pushButton_loadPIF_clicked();
+
+    void on_action_info_triggered();
 
 private:
     Ui::Model_main *ui;

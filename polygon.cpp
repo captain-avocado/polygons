@@ -165,15 +165,12 @@ void polygon::bfsCompressed(QByteArray &fileData) {
         polygon* tmpNode = queue.dequeue();
 
         if (tmpNode->isEmpty) {
+
             fileData += char(tmpNode->x0);
             fileData += char(tmpNode->y0);
             fileData += char((tmpNode->R)-1);
             fileData += char(tmpNode->intensity);
 
-            qDebug() << (char)(tmpNode->x0) <<
-                        (char)(tmpNode->y0) <<
-                        (char)((tmpNode->R) - 1) <<
-                        (char)(tmpNode->intensity);
         }
 
         if (tmpNode->LT) {

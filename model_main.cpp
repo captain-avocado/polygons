@@ -154,3 +154,8 @@ void Model_main::on_pushButton_loadPIF_clicked()
     }
 
 }
+
+void Model_main::on_action_info_triggered()
+{
+    QMessageBox::information(this, "title", "New");
+}
